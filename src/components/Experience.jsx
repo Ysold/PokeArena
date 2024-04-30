@@ -1,13 +1,10 @@
 import { OrbitControls } from "@react-three/drei";
+import { Lobby } from "./Lobby";
 
 export const Experience = () => {
   return (
     <>
-      <OrbitControls />
-      <mesh>
-        <boxGeometry />
-        <meshNormalMaterial />
-      </mesh>
+      <Lobby />
     </>
   );
 };
