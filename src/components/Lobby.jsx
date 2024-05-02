@@ -1,13 +1,15 @@
 import { Box, CameraControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
-import { usePlayersList } from "playroomkit";
+import { myPlayer, usePlayersList } from "playroomkit";
 import { useEffect, useRef } from "react";
 import { Camera, Vector3 } from "three";
+import { Pokemon } from "./Pokemon";
+import { degToRad } from "three/src/math/MathUtils.js";
 
 export const Lobby = () => {
 
     const controls = useRef();
-
+    const me = myPlayer();
     const players = usePlayersList(true);
     const { scene } = useGLTF("models/lobby1.glb");
 
@@ -51,10 +53,34 @@ export const Lobby = () => {
             <CameraControls ref={controls} />
             <directionalLight position={[11, 81, 81]} intensity={1} castShadow />
             {players.map((player, index) => (
-                <group key={player.id} position={[index * 2, 27, 40]}>
-                    <Box>
-                        <meshBasicMaterial color={"white"} />
-                    </Box>
+                <group key={player.id} position={[index * 2, 27.6, 40]}>
+                    <Pokemon model={player.getState("pokemon")} />
+                    {player.id === "me" && (
+                      <>
+                        <pointLight
+                            position-x={1}
+                            position-y={29.6}
+                            position-z={40}
+                            intensity={2}
+                            distance={3}
+                        />
+                        <group rotation-x={degToRad(-90)} position-y={0.01}>
+                          <mesh receiveShadow>
+                            <circleGeometry args={[2.2, 64]} />
+                            <meshStandardMaterial
+                              color="pink"
+                              toneMapped={false}
+                              emissive={"pink"}
+                              emissiveIntensity={1.2}
+                            />
+                          </mesh>
+                        </group>
+                        <mesh position-y={0.1} receiveShadow>
+                          <circleGeometry args={[2, 29.6, 40.2, 64]} />
+                          <meshStandardMaterial color="#8572af" />
+                        </mesh>
+                        </>
+                    )}
             </group>
             ))}
             <primitive object={scene} />
