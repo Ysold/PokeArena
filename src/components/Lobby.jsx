@@ -7,13 +7,14 @@ import {
   Text,
   useGLTF,
 } from "@react-three/drei";
-import { atom, useAtom } from "jotai";
-import { useThree } from "@react-three/fiber";
+import { useFrame, useThree } from "@react-three/fiber";
+import { useAtom } from "jotai";
 import { myPlayer, usePlayersList } from "playroomkit";
-import { useEffect, useRef } from "react";
-import { Camera, Vector3 } from "three";
+import { useEffect, useRef, useState } from "react";
+import { MathUtils, Vector3 } from "three";
+import { degToRad } from "three/src/math/MathUtils";
+import { audios, playAudio } from "../utils/AudioManager";
 import { Pokemon } from "./Pokemon";
-import { degToRad } from "three/src/math/MathUtils.js";
 import { NameEditingAtom } from "./UI";
 
 
@@ -92,7 +93,7 @@ export const Lobby = () => {
                       <Image
                         position-x={0.2}
                         scale={0.3}
-                        url="\models\images\edit.png"
+                        url="\images\edit.png"
                         transparent
                         onClick={() => setNameEditing(true)}
                       />
@@ -101,13 +102,13 @@ export const Lobby = () => {
                         position-y={-0.02}
                         position-z={-0.01}
                         scale={0.3}
-                        url="\models\images\edit.png"
+                        url="\images\edit.png"
                         transparent
                         color="black"
                       />
                     </Billboard>
                     <group position-y={player.id === "me" ? 0.15 : 0}>
-                      <Pokemon model={player.getState("pokemon")} />
+                      <PokemonSwitcher player={player} />
                     </group>
                     {player.id === "me" && (
                       <>
@@ -140,6 +141,55 @@ export const Lobby = () => {
             <primitive object={scene} />
         </>
     );
+};
+
+const SWITCH_DURATION = 600;
+
+const PokemonSwitcher = ({ player }) => {
+  const changedPokemonAt = useRef(0);
+  const container = useRef();
+  const [pokemonModel, setCurrentPokemonModel] = useState(player.getState("pokemon"));
+  useFrame(() => {
+    const timeSinceChange = Date.now() - changedPokemonAt.current;
+    if (timeSinceChange < SWITCH_DURATION / 2) {
+      container.current.rotation.y +=
+        2 * (timeSinceChange / SWITCH_DURATION / 2);
+      container.current.scale.x =
+        container.current.scale.y =
+        container.current.scale.z =
+          1 - timeSinceChange / SWITCH_DURATION / 2;
+    } else if (timeSinceChange < SWITCH_DURATION) {
+      container.current.rotation.y +=
+        4 * (1 - timeSinceChange / SWITCH_DURATION);
+      container.current.scale.x =
+        container.current.scale.y =
+        container.current.scale.z =
+          timeSinceChange / SWITCH_DURATION;
+      if (container.current.rotation.y > Math.PI * 2) {
+        container.current.rotation.y -= Math.PI * 2;
+      }
+    }
+    if (timeSinceChange >= SWITCH_DURATION) {
+      container.current.rotation.y = MathUtils.lerp(
+        container.current.rotation.y,
+        Math.PI * 2,
+        0.1
+      );
+    }
+  }, []);
+  const newPokemon = player.getState("pokemon");
+  if (newPokemon !== pokemonModel) {
+    playAudio(audios.pokemon_selected);
+    changedPokemonAt.current = Date.now();
+    setTimeout(() => {
+      setCurrentPokemonModel(newPokemon);
+    }, SWITCH_DURATION / 2);
+  }
+  return (
+    <group ref={container}>
+      <Pokemon model={pokemonModel} />
+    </group>
+  );
 };
 
 useGLTF.preload("models/lobby1.glb");

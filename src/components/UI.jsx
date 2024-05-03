@@ -42,7 +42,7 @@ export const UI = () => {
           onClick={() => me?.setState("pokemon", model)}
         >
           <img
-            src={`/models/images/pokemons/${model}.png`}
+            src={`/images/pokemons/${model}.png`}
             alt={model}
             className="w-full h-full"
           />
