@@ -65,5 +65,5 @@ export const Pokemon = ({
 }
 
 POKEMON_MODELS.forEach((model) => {
-    useGLTF.preload(`models/pokemon/${model}.glb`);
+    useGLTF.preload(`models/pokemons/${model}.glb`);
 });
