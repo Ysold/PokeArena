@@ -31,17 +31,24 @@ export const Lobby = () => {
     const viewport = useThree((state) => state.viewport);
     const cameraReference = useRef();
     const adjustCamera = () => {
-        const distFactor = 200 / viewport.getCurrentViewport(cameraReference.current, new Vector3(0, 0, 0)).width;
+        const distFactor = 150 / viewport.getCurrentViewport(cameraReference.current, new Vector3(0, 0, 0)).width;
         controls.current.setLookAt(
             2 * distFactor, 
+            30 * distFactor, 
             50 * distFactor, 
-            60 * distFactor, 
             0, 
             0.15, 
             0, 
             true
         );
     };
+
+    useFrame(({clock}) => {
+      controls.current.camera.position.x +=
+        Math.sin(clock.getElapsedTime() * 0.5) * 2;
+      controls.current.camera.position.y += 
+        Math.sin(clock.getElapsedTime() * 1) * 0.125;
+    });
 
     useEffect(() => {
         const onResize = () => {
@@ -64,7 +71,7 @@ export const Lobby = () => {
 
     return (
         <>
-            <PerspectiveCamera ref={cameraReference} position={[2, 50, 60]} fov={75} />
+            <PerspectiveCamera ref={cameraReference} position={[2, 30, 50]} fov={75} />
             <CameraControls ref={controls} />
             <directionalLight position={[11, 81, 81]} intensity={1} castShadow />
             {players.map((player, index) => (

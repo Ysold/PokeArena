@@ -6,7 +6,7 @@ import { UI } from "./components/UI";
 function App() {
   return (
     <>
-      <Canvas shadows camera={{ position: [2, 50, 60], fov: 75 }}>
+      <Canvas shadows camera={{ position: [2, 30, 50], fov: 75, near: 0.5 }}>
         <color attach="background" args={["#87CEEB"]} />
         <Experience />
         <EffectComposer>
