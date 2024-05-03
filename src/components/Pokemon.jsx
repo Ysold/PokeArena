@@ -4,7 +4,7 @@ import { degToRad } from "three/src/math/MathUtils.js";
 
 export const POKEMON_MODELS = [
     "Bellsprout",
-    "Bullbasaur",
+    "Bulbasaur",
     "Charmander",
     "Cubone",
     "Eevee",
@@ -20,7 +20,7 @@ export const POKEMON_MODELS = [
     "Porygon",
     "Snorlax",
     "Squirtle",
-    "Subowoodo",
+    "Sudowoodo",
 ];
 
 export const Pokemon = ({

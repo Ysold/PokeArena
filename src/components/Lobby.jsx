@@ -1,10 +1,23 @@
-import { Box, CameraControls, PerspectiveCamera, useGLTF } from "@react-three/drei";
+import {
+  Billboard,
+  Box,
+  CameraControls,
+  Image,
+  PerspectiveCamera,
+  Text,
+  useGLTF,
+} from "@react-three/drei";
+import { atom, useAtom } from "jotai";
 import { useThree } from "@react-three/fiber";
 import { myPlayer, usePlayersList } from "playroomkit";
 import { useEffect, useRef } from "react";
 import { Camera, Vector3 } from "three";
 import { Pokemon } from "./Pokemon";
 import { degToRad } from "three/src/math/MathUtils.js";
+import { NameEditingAtom } from "./UI";
+
+
+const POKEMON_SPACING = 2.5;
 
 export const Lobby = () => {
 
@@ -12,6 +25,7 @@ export const Lobby = () => {
     const me = myPlayer();
     const players = usePlayersList(true);
     const { scene } = useGLTF("models/lobby1.glb");
+    const [_nameEditing, setNameEditing] = useAtom(NameEditingAtom);
 
     const viewport = useThree((state) => state.viewport);
     const cameraReference = useRef();
@@ -53,8 +67,48 @@ export const Lobby = () => {
             <CameraControls ref={controls} />
             <directionalLight position={[11, 81, 81]} intensity={1} castShadow />
             {players.map((player, index) => (
-                <group key={player.id} position={[index * 2, 27.6, 40]}>
-                    <Pokemon model={player.getState("pokemon")} />
+                <group key={player.id} position={[
+                  index * POKEMON_SPACING - ((players.length -  1) * POKEMON_SPACING) / 2, 
+                  27.6, 
+                  40
+                  ]}
+                    scale={0.8}
+                  >
+                    <Billboard position-y={2.1} position-x={0.5}>
+                      <Text fontSize={0.34} anchorX={"right"}>
+                        {player.state.name || player.state.profile.name}
+                        <meshBasicMaterial color="white" />
+                      </Text>
+                      <Text
+                        fontSize={0.34}
+                        anchorX={"right"}
+                        position-x={0.02}
+                        position-y={-0.02}
+                        position-z={-0.01}
+                        >
+                          {player.state.name || player.state.profile.name}
+                          <meshBasicMaterial color="black" transparent opacity={0.8} />
+                      </Text>
+                      <Image
+                        position-x={0.2}
+                        scale={0.3}
+                        url="\models\images\edit.png"
+                        transparent
+                        onClick={() => setNameEditing(true)}
+                      />
+                      <Image
+                        position-x={0.2 + 0.02}
+                        position-y={-0.02}
+                        position-z={-0.01}
+                        scale={0.3}
+                        url="\models\images\edit.png"
+                        transparent
+                        color="black"
+                      />
+                    </Billboard>
+                    <group position-y={player.id === "me" ? 0.15 : 0}>
+                      <Pokemon model={player.getState("pokemon")} />
+                    </group>
                     {player.id === "me" && (
                       <>
                         <pointLight
